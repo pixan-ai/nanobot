@@ -30,11 +30,15 @@ WORKDIR /app/bridge
 RUN npm install && npm run build
 WORKDIR /app
 
+# Copy init script
+COPY init-config.sh /app/init-config.sh
+RUN chmod +x /app/init-config.sh
+
 # Create config directory
 RUN mkdir -p /root/.nanobot
 
 # Gateway default port
 EXPOSE 18790
 
-ENTRYPOINT ["nanobot"]
-CMD ["gateway"]
+# Use init script as entrypoint
+ENTRYPOINT ["/app/init-config.sh"]
