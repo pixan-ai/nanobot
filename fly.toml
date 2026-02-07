@@ -22,3 +22,6 @@ primary_region = "iad"
 [mounts]
   source = "nanobot_data"
   destination = "/data"
+
+[processes]
+  app = "/entrypoint.sh nanobot gateway"
