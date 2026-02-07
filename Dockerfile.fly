@@ -25,15 +25,15 @@ COPY nanobot/ nanobot/
 COPY bridge/ bridge/
 RUN uv pip install --system --no-cache .
 
-# Create config directory and add config from build args
+# Create config directory
 RUN mkdir -p /root/.nanobot
-ARG OPENROUTER_KEY
-ARG TELEGRAM_TOKEN
-ARG TELEGRAM_USER_ID
-RUN echo "{\"providers\":{\"openrouter\":{\"apiKey\":\"$OPENROUTER_KEY\"}},\"agents\":{\"defaults\":{\"model\":\"google/gemini-3-flash-preview\"}},\"channels\":{\"telegram\":{\"enabled\":true,\"token\":\"$TELEGRAM_TOKEN\",\"allowFrom\":[\"$TELEGRAM_USER_ID\"]}}}" > /root/.nanobot/config.json
+
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Gateway default port
 EXPOSE 18790
 
-ENTRYPOINT ["nanobot"]
-CMD ["gateway"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nanobot", "gateway"]
