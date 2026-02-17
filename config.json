@@ -1,7 +1,7 @@
 {
   "providers": {
     "openrouter": {
-      "apiKey": "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"
+      "apiKey": "YOUR_OPENROUTER_API_KEY"
     }
   },
   "agents": {
@@ -12,8 +12,8 @@
   "channels": {
     "telegram": {
       "enabled": true,
-      "token": "8517340337:AAFsqTd7_qKna46pI5jQsqpygCfjkYWyKNY",
-      "allowFrom": ["7183589410"]
+      "token": "YOUR_TELEGRAM_BOT_TOKEN",
+      "allowFrom": ["YOUR_TELEGRAM_USER_ID"]
     }
   },
   "tools": {
