@@ -30,9 +30,9 @@ WORKDIR /app/bridge
 RUN npm install && npm run build
 WORKDIR /app
 
-# Copy init script
-COPY init-config.sh /app/init-config.sh
-RUN chmod +x /app/init-config.sh
+# Copy init script to /entrypoint.sh (Railway expects this path)
+COPY init-config.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Create config directory
 RUN mkdir -p /root/.nanobot
@@ -41,5 +41,5 @@ RUN mkdir -p /root/.nanobot
 EXPOSE 18790
 
 # Use init script as entrypoint, gateway as default command
-ENTRYPOINT ["/app/init-config.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nanobot", "gateway"]
