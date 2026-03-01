@@ -129,6 +129,8 @@ class TelegramChannel(BaseChannel):
         self._typing_tasks: dict[str, asyncio.Task] = {}  # chat_id -> typing loop task
         self._media_group_buffers: dict[str, dict] = {}
         self._media_group_tasks: dict[str, asyncio.Task] = {}
+        self._bot_username: str | None = None
+        self._bot_id: int | None = None
     
     async def start(self) -> None:
         """Start the Telegram bot with long polling."""
@@ -168,6 +170,8 @@ class TelegramChannel(BaseChannel):
         
         # Get bot info and register command menu
         bot_info = await self._app.bot.get_me()
+        self._bot_username = bot_info.username
+        self._bot_id = bot_info.id
         logger.info("Telegram bot @{} connected", bot_info.username)
         
         try:
@@ -326,7 +330,17 @@ class TelegramChannel(BaseChannel):
             chat_id=str(update.message.chat_id),
             content=update.message.text,
         )
-    
+
+    def _is_bot_mentioned(self, message) -> bool:
+        """Check if the bot was @mentioned in text or the message is a reply to the bot."""
+        text = message.text or message.caption or ""
+        if self._bot_username and f"@{self._bot_username}" in text:
+            return True
+        if message.reply_to_message and message.reply_to_message.from_user:
+            if self._bot_id and message.reply_to_message.from_user.id == self._bot_id:
+                return True
+        return False
+
     async def _on_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming messages (text, photos, voice, documents)."""
         if not update.message or not update.effective_user:
@@ -336,6 +350,12 @@ class TelegramChannel(BaseChannel):
         user = update.effective_user
         chat_id = message.chat_id
         sender_id = self._sender_id(user)
+
+        # Group policy filtering: in groups, skip messages when policy requires mention/reply
+        if message.chat.type != "private" and self.config.group_policy == "mention":
+            if not self._is_bot_mentioned(message):
+                logger.debug("Skipping group message (group_policy=mention, no mention/reply)")
+                return
         
         # Store chat_id for replies
         self._chat_ids[sender_id] = chat_id
