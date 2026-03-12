@@ -76,7 +76,7 @@ class OpenAICodexProvider(LLMProvider):
             )
         except Exception as e:
             return LLMResponse(
-                content=f"Error calling Codex: {str(e)}",
+                content=f"Error calling Codex: {repr(e)}",
                 finish_reason="error",
             )
 
