@@ -83,6 +83,7 @@ def test_resolve_template_path_resolves_relative_against_workspace(tmp_path: Pat
 
 def test_resolve_template_path_expands_tilde(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))  # Windows expanduser uses USERPROFILE, not HOME
     (tmp_path / "custom.md").write_text("x")
 
     resolved = _resolve_dream_template_path("~/custom.md", Path("/other-ws"))
