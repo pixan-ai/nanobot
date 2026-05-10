@@ -227,7 +227,7 @@ class ExecToolConfig(Base):
     """Shell exec tool configuration."""
 
     enable: bool = True
-    timeout: int = 60
+    timeout: int = Field(default=60, ge=0)  # 0 disables the timeout
     path_append: str = ""
     sandbox: str = ""  # sandbox backend: "" (none) or "bwrap"
     allowed_env_keys: list[str] = Field(default_factory=list)  # Env var names to pass through to subprocess (e.g. ["GOPATH", "JAVA_HOME"])
