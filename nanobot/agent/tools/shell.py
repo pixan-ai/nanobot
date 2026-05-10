@@ -161,7 +161,13 @@ class ExecTool(Tool):
                 command = wrap_command(self.sandbox, command, workspace, cwd)
                 cwd = str(Path(workspace).resolve())
 
-        effective_timeout = min(timeout or self.timeout, self._MAX_TIMEOUT)
+        if timeout is not None:
+            # LLM-supplied timeout: cap matches the tool-call schema
+            effective_timeout = min(timeout, self._MAX_TIMEOUT)
+        else:
+            # Config-supplied timeout is operator policy, not capped here.
+            # 0 (or any non-positive) disables the timeout entirely.
+            effective_timeout = self.timeout if self.timeout > 0 else None
         env = self._build_env()
 
         if self.path_append:
